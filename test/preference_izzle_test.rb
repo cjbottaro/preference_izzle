@@ -181,6 +181,16 @@ class PreferenceIzzleTest < Test::Unit::TestCase
     assert @client.valid?
   end
   
+  def test_direct_validation
+    @client.preferred_valid_boolean = true
+    assert @client.preferences.valid?
+    @client.preferred_valid_boolean = 'true'
+    assert @client.preferences.valid? == false
+    @client.preferred_valid_fixnum = "123"
+    assert @client.preferences.valid? == false
+    assert_equal 2, @client.errors.on(:preferences).length
+  end
+  
   def test_casting
     assert_nil @client.preferences.casted_boolean_method
     assert_nil @client.preferences.casted_boolean_proc
@@ -191,7 +201,7 @@ class PreferenceIzzleTest < Test::Unit::TestCase
     assert @client.valid?
   end
   
-  def test_saving
+  def test_save
     @client.preferred_min = 2
     @client.preferred_max = 11
     @client.preferred_boolean = false
@@ -200,7 +210,7 @@ class PreferenceIzzleTest < Test::Unit::TestCase
     @client.preferred_valid_number = 12345.67
     @client.preferred_valid_boolean = true
     
-    @client.save
+    assert @client.save
     assert @client.errors.empty?
     
     assert_equal 2, Mumboe::Izzle::Preference::Preference.find_by_model_type_and_model_id_and_key('Client', @client.id, 'min').value
@@ -228,6 +238,18 @@ class PreferenceIzzleTest < Test::Unit::TestCase
     assert_equal 12345, @client.preferred_valid_fixnum
     assert_equal 12345.67, @client.preferred_valid_number
     assert_equal true, @client.preferred_valid_boolean
+  end
+  
+  def test_save_bang
+    @client.preferred_valid_boolean = 'true'
+    @client.preferred_valid_fixnum = "123"
+    assert_raises(Mumboe::Izzle::Preference::PreferencesInvalid){ @client.preferences.save! }
+    begin
+      @client.preferences.save!
+    rescue Mumboe::Izzle::Preference::PreferencesInvalid => e
+      assert_equal %q[Validation failed: validation failed for preference 'valid_boolean' - String is not TrueClass or FalseClass] +"\n" +
+                   %q[validation failed for preference 'valid_fixnum' - 123 is String instead of Fixnum], e.to_s
+    end
   end
   
 end

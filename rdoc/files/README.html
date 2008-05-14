@@ -56,7 +56,7 @@
     </tr>
     <tr class="top-aligned-row">
       <td><strong>Last Update:</strong></td>
-      <td>Wed May 14 15:40:42 -0500 2008</td>
+      <td>Wed May 14 17:51:02 -0500 2008</td>
     </tr>
     </table>
   </div>
@@ -271,6 +271,12 @@ There are two ways to specify validation failure when using a method:
   1)  Raise an exception, in which case the exception text will be the validation error message text.
   2)  Add directly to the model's ActiveRecord::Errors object.
 </pre>
+<p>
+Validation error messages are found on the model&#8216;s errors object:
+</p>
+<pre>
+  user.errors.on(:preferences) # See documentation for ActiveRecord::Errors
+</pre>
 <h2>Casting Preference Values</h2>
 <p>
 Consider the following situation. You have a boolean preference and you
@@ -348,11 +354,19 @@ preferences table, you have to do something like this:
  SQL;
 </pre>
 <p>
-You can just save a model&#8216;s preferences and not trigger that
-model&#8216;s callbacks.
+You can just save a model&#8216;s preferences without saving the model
+itself.
 </p>
 <pre>
-  user.preferences.save
+  user.preferences.save  # return false if there are validation errors
+  user.preferences.save! # raises PreferencesInvalid exception if there are validation errors
+</pre>
+<p>
+You can validate a model&#8216;s preferences without validating the model
+itself.
+</p>
+<pre>
+  user.preferences.valid? # returns true or false
 </pre>
 <p>
 <tt>preference</tt> is an alias for <tt>preference_definition</tt> if you

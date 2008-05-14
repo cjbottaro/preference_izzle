@@ -156,34 +156,34 @@ model that has the preferences.
             onclick="toggleCode('M000002-source');return false;">[Source]</a></p>
           <div class="method-source-code" id="M000002-source">
 <pre>
-    <span class="ruby-comment cmt"># File lib/preference_izzle.rb, line 52</span>
-52:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">preference_definition</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">options</span> = {})
-53:       <span class="ruby-constant">Helper</span>.<span class="ruby-identifier">init</span>(<span class="ruby-keyword kw">self</span>)
-54:     
-55:       <span class="ruby-identifier">name</span> = <span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_s</span>
-56:       <span class="ruby-identifier">options</span> = <span class="ruby-identifier">options</span>.<span class="ruby-identifier">stringify_keys</span>
-57:     
-58:       <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;preference '#{name}' already defined&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">preference_definitions</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-identifier">name</span>)
-59:       <span class="ruby-identifier">options</span>.<span class="ruby-identifier">assert_valid_keys</span>(<span class="ruby-operator">*</span><span class="ruby-node">%w[validate default cast typecast]</span>)
-60:     
-61:       <span class="ruby-identifier">preference_definition</span> = <span class="ruby-constant">Definition</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">name</span>)
-62:       <span class="ruby-node">%w[validate default cast typecast]</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">k</span><span class="ruby-operator">|</span>
-63:         <span class="ruby-keyword kw">next</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">options</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-identifier">k</span>)
-64:         <span class="ruby-identifier">v</span> = <span class="ruby-identifier">options</span>[<span class="ruby-identifier">k</span>]
-65:         <span class="ruby-keyword kw">case</span> <span class="ruby-identifier">k</span>
-66:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'validate'</span>
-67:           <span class="ruby-identifier">preference_definition</span>.<span class="ruby-identifier">set_validation</span>(<span class="ruby-identifier">v</span>)
-68:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'default'</span>
-69:           <span class="ruby-identifier">preference_definition</span>.<span class="ruby-identifier">set_default</span>(<span class="ruby-identifier">v</span>)
-70:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'cast'</span>, <span class="ruby-value str">'typecast'</span>
-71:           <span class="ruby-identifier">preference_definition</span>.<span class="ruby-identifier">set_caster</span>(<span class="ruby-identifier">v</span>)
-72:         <span class="ruby-keyword kw">end</span>
-73:       <span class="ruby-keyword kw">end</span>
-74:     
-75:       <span class="ruby-constant">Helper</span>.<span class="ruby-identifier">define_accessors</span>(<span class="ruby-keyword kw">self</span>, <span class="ruby-identifier">name</span>, <span class="ruby-identifier">preference_options</span>)
-76:     
-77:       <span class="ruby-identifier">preference_definitions</span>[<span class="ruby-identifier">name</span>] = <span class="ruby-identifier">preference_definition</span>
-78:     <span class="ruby-keyword kw">end</span>
+    <span class="ruby-comment cmt"># File lib/preference_izzle.rb, line 56</span>
+56:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">preference_definition</span>(<span class="ruby-identifier">name</span>, <span class="ruby-identifier">options</span> = {})
+57:       <span class="ruby-constant">Helper</span>.<span class="ruby-identifier">init</span>(<span class="ruby-keyword kw">self</span>)
+58:     
+59:       <span class="ruby-identifier">name</span> = <span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_s</span>
+60:       <span class="ruby-identifier">options</span> = <span class="ruby-identifier">options</span>.<span class="ruby-identifier">stringify_keys</span>
+61:     
+62:       <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;preference '#{name}' already defined&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">preference_definitions</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-identifier">name</span>)
+63:       <span class="ruby-identifier">options</span>.<span class="ruby-identifier">assert_valid_keys</span>(<span class="ruby-operator">*</span><span class="ruby-node">%w[validate default cast typecast]</span>)
+64:     
+65:       <span class="ruby-identifier">preference_definition</span> = <span class="ruby-constant">Definition</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">name</span>)
+66:       <span class="ruby-node">%w[validate default cast typecast]</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">k</span><span class="ruby-operator">|</span>
+67:         <span class="ruby-keyword kw">next</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">options</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-identifier">k</span>)
+68:         <span class="ruby-identifier">v</span> = <span class="ruby-identifier">options</span>[<span class="ruby-identifier">k</span>]
+69:         <span class="ruby-keyword kw">case</span> <span class="ruby-identifier">k</span>
+70:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'validate'</span>
+71:           <span class="ruby-identifier">preference_definition</span>.<span class="ruby-identifier">set_validation</span>(<span class="ruby-identifier">v</span>)
+72:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'default'</span>
+73:           <span class="ruby-identifier">preference_definition</span>.<span class="ruby-identifier">set_default</span>(<span class="ruby-identifier">v</span>)
+74:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'cast'</span>, <span class="ruby-value str">'typecast'</span>
+75:           <span class="ruby-identifier">preference_definition</span>.<span class="ruby-identifier">set_caster</span>(<span class="ruby-identifier">v</span>)
+76:         <span class="ruby-keyword kw">end</span>
+77:       <span class="ruby-keyword kw">end</span>
+78:     
+79:       <span class="ruby-constant">Helper</span>.<span class="ruby-identifier">define_accessors</span>(<span class="ruby-keyword kw">self</span>, <span class="ruby-identifier">name</span>, <span class="ruby-identifier">preference_options</span>)
+80:     
+81:       <span class="ruby-identifier">preference_definitions</span>[<span class="ruby-identifier">name</span>] = <span class="ruby-identifier">preference_definition</span>
+82:     <span class="ruby-keyword kw">end</span>
 </pre>
           </div>
         </div>
@@ -219,24 +219,24 @@ to access the preferences. In this example, you can do both
             onclick="toggleCode('M000001-source');return false;">[Source]</a></p>
           <div class="method-source-code" id="M000001-source">
 <pre>
-    <span class="ruby-comment cmt"># File lib/preference_izzle.rb, line 25</span>
-25:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">preference_options</span>(<span class="ruby-identifier">options</span> = {})
-26:       <span class="ruby-constant">Helper</span>.<span class="ruby-identifier">init</span>(<span class="ruby-keyword kw">self</span>)
-27:     
-28:       <span class="ruby-identifier">options</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">name</span>, <span class="ruby-identifier">value</span><span class="ruby-operator">|</span>
-29:         <span class="ruby-identifier">name</span> = <span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_s</span>
-30:         <span class="ruby-keyword kw">case</span> <span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_s</span>
-31:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'autovivify'</span>
-32:           <span class="ruby-identifier">preference_options</span>.<span class="ruby-identifier">autovivify</span> = <span class="ruby-identifier">value</span>
-33:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'alias'</span>, <span class="ruby-value str">'shorthand'</span>
-34:           <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;preference alias already specified '#{preference_options.alias}'&quot;</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">preference_options</span>.<span class="ruby-identifier">alias</span>.<span class="ruby-identifier">blank?</span>
-35:           <span class="ruby-identifier">preference_options</span>.<span class="ruby-identifier">alias</span> = <span class="ruby-identifier">value</span>.<span class="ruby-identifier">to_s</span>
-36:           <span class="ruby-identifier">alias_method</span> <span class="ruby-identifier">preference_options</span>.<span class="ruby-identifier">alias</span>, <span class="ruby-identifier">:preferences</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">preference_options</span>.<span class="ruby-identifier">alias?</span>
-37:         <span class="ruby-keyword kw">else</span>
-38:           <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;unrecognized preference option '#{value}'&quot;</span>
-39:         <span class="ruby-keyword kw">end</span>
-40:       <span class="ruby-keyword kw">end</span>
-41:     <span class="ruby-keyword kw">end</span>
+    <span class="ruby-comment cmt"># File lib/preference_izzle.rb, line 29</span>
+29:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">preference_options</span>(<span class="ruby-identifier">options</span> = {})
+30:       <span class="ruby-constant">Helper</span>.<span class="ruby-identifier">init</span>(<span class="ruby-keyword kw">self</span>)
+31:     
+32:       <span class="ruby-identifier">options</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">name</span>, <span class="ruby-identifier">value</span><span class="ruby-operator">|</span>
+33:         <span class="ruby-identifier">name</span> = <span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_s</span>
+34:         <span class="ruby-keyword kw">case</span> <span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_s</span>
+35:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'autovivify'</span>
+36:           <span class="ruby-identifier">preference_options</span>.<span class="ruby-identifier">autovivify</span> = <span class="ruby-identifier">value</span>
+37:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'alias'</span>, <span class="ruby-value str">'shorthand'</span>
+38:           <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;preference alias already specified '#{preference_options.alias}'&quot;</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">preference_options</span>.<span class="ruby-identifier">alias</span>.<span class="ruby-identifier">blank?</span>
+39:           <span class="ruby-identifier">preference_options</span>.<span class="ruby-identifier">alias</span> = <span class="ruby-identifier">value</span>.<span class="ruby-identifier">to_s</span>
+40:           <span class="ruby-identifier">alias_method</span> <span class="ruby-identifier">preference_options</span>.<span class="ruby-identifier">alias</span>, <span class="ruby-identifier">:preferences</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">preference_options</span>.<span class="ruby-identifier">alias?</span>
+41:         <span class="ruby-keyword kw">else</span>
+42:           <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;unrecognized preference option '#{value}'&quot;</span>
+43:         <span class="ruby-keyword kw">end</span>
+44:       <span class="ruby-keyword kw">end</span>
+45:     <span class="ruby-keyword kw">end</span>
 </pre>
           </div>
         </div>

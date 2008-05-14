@@ -33,12 +33,14 @@ module Preference
     end
     
     def validate # :nodoc:
+      errors = @model.errors
+      errors.clear_on(:preferences)
+      
       @dirty.each do |key|
         preference = find_record(key)
         value = preference.value
         definition = @definitions[key]
         validation = definition.validation
-        errors = @model.errors
         
         next if validation.blank?
         
@@ -63,12 +65,34 @@ module Preference
       end
     end
     
-    def save # :nodoc:
+    # Returns true if all the preferences validation passed for this model.
+    #   puts user.errors.on(:preferences) unless user.preferences.valid?
+    def valid?
+      validate
+      @model.errors.on(:preferences).blank?
+    end
+    
+    # You can save the preferences without saving the model.
+    #   user.preferences.save # does not call user.save
+    # Returns true if successful, false if there were validation errors (which can be found in user.errors.on(:preferences)).
+    def save
+      return false unless valid?
       @dirty.each do |key|
         @cache[key].model_id = @model.id
         @cache[key].save
       end
       @dirty = []
+      true
+    end
+    
+    # Same as save, except raises an exception if there are validation errors.
+    def save!
+      unless save
+        errors = @model.errors.on(:preferences)
+        errors = errors.join("\n") if errors.respond_to?(:join)
+        raise PreferencesInvalid.new("Validation failed: " + errors.to_s)
+      end
+      true
     end
     
     protected

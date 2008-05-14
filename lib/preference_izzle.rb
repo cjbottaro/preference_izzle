@@ -1,3 +1,4 @@
+require 'active_record/errors'
 require 'definition'
 require 'helper'
 require 'options'
@@ -11,6 +12,9 @@ module Preference # :nodoc:
       
   def self.included(mod)
     mod.extend ClassMethods
+  end
+  
+  class PreferencesInvalid < RuntimeError # :nodoc:
   end
 
   module ClassMethods

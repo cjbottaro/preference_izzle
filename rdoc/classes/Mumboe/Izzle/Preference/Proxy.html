@@ -94,8 +94,11 @@ This is the class through which you access preferences for a model.
       <div class="name-list">
       <a href="#M000006">[]</a>&nbsp;&nbsp;
       <a href="#M000007">[]=</a>&nbsp;&nbsp;
-      <a href="#M000008">method_missing</a>&nbsp;&nbsp;
+      <a href="#M000011">method_missing</a>&nbsp;&nbsp;
       <a href="#M000005">reload</a>&nbsp;&nbsp;
+      <a href="#M000009">save</a>&nbsp;&nbsp;
+      <a href="#M000010">save!</a>&nbsp;&nbsp;
+      <a href="#M000008">valid?</a>&nbsp;&nbsp;
       </div>
     </div>
 
@@ -206,13 +209,115 @@ shouldn&#8216;t ever need to call this.
         </div>
       </div>
 
-      <h3 class="section-bar">Protected Instance methods</h3>
+      <div id="method-M000009" class="method-detail">
+        <a name="M000009"></a>
+
+        <div class="method-heading">
+          <a href="#M000009" class="method-signature">
+          <span class="method-name">save</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+You can <a href="Proxy.html#M000009">save</a> the preferences without
+saving the model.
+</p>
+<pre>
+  user.preferences.save # does not call user.save
+</pre>
+<p>
+Returns true if successful, false if there were validation errors (which
+can be found in user.errors.on(:preferences)).
+</p>
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000009-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000009-source">
+<pre>
+    <span class="ruby-comment cmt"># File lib/proxy.rb, line 78</span>
+78:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">save</span>
+79:       <span class="ruby-keyword kw">return</span> <span class="ruby-keyword kw">false</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">valid?</span>
+80:       <span class="ruby-ivar">@dirty</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">key</span><span class="ruby-operator">|</span>
+81:         <span class="ruby-ivar">@cache</span>[<span class="ruby-identifier">key</span>].<span class="ruby-identifier">model_id</span> = <span class="ruby-ivar">@model</span>.<span class="ruby-identifier">id</span>
+82:         <span class="ruby-ivar">@cache</span>[<span class="ruby-identifier">key</span>].<span class="ruby-identifier">save</span>
+83:       <span class="ruby-keyword kw">end</span>
+84:       <span class="ruby-ivar">@dirty</span> = []
+85:       <span class="ruby-keyword kw">true</span>
+86:     <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <div id="method-M000010" class="method-detail">
+        <a name="M000010"></a>
+
+        <div class="method-heading">
+          <a href="#M000010" class="method-signature">
+          <span class="method-name">save!</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Same as <a href="Proxy.html#M000009">save</a>, except raises an exception
+if there are validation errors.
+</p>
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000010-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000010-source">
+<pre>
+    <span class="ruby-comment cmt"># File lib/proxy.rb, line 89</span>
+89:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">save!</span>
+90:       <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">save</span>
+91:         <span class="ruby-identifier">errors</span> = <span class="ruby-ivar">@model</span>.<span class="ruby-identifier">errors</span>.<span class="ruby-identifier">on</span>(<span class="ruby-identifier">:preferences</span>)
+92:         <span class="ruby-identifier">errors</span> = <span class="ruby-identifier">errors</span>.<span class="ruby-identifier">join</span>(<span class="ruby-value str">&quot;\n&quot;</span>) <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">errors</span>.<span class="ruby-identifier">respond_to?</span>(<span class="ruby-identifier">:join</span>)
+93:         <span class="ruby-identifier">raise</span> <span class="ruby-constant">PreferencesInvalid</span>.<span class="ruby-identifier">new</span>(<span class="ruby-value str">&quot;Validation failed: &quot;</span> <span class="ruby-operator">+</span> <span class="ruby-identifier">errors</span>.<span class="ruby-identifier">to_s</span>)
+94:       <span class="ruby-keyword kw">end</span>
+95:       <span class="ruby-keyword kw">true</span>
+96:     <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
 
       <div id="method-M000008" class="method-detail">
         <a name="M000008"></a>
 
         <div class="method-heading">
           <a href="#M000008" class="method-signature">
+          <span class="method-name">valid?</span><span class="method-args">()</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <p>
+Returns true if all the preferences validation passed for this model.
+</p>
+<pre>
+  puts user.errors.on(:preferences) unless user.preferences.valid?
+</pre>
+          <p><a class="source-toggle" href="#"
+            onclick="toggleCode('M000008-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000008-source">
+<pre>
+    <span class="ruby-comment cmt"># File lib/proxy.rb, line 70</span>
+70:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">valid?</span>
+71:       <span class="ruby-identifier">validate</span>
+72:       <span class="ruby-ivar">@model</span>.<span class="ruby-identifier">errors</span>.<span class="ruby-identifier">on</span>(<span class="ruby-identifier">:preferences</span>).<span class="ruby-identifier">blank?</span>
+73:     <span class="ruby-keyword kw">end</span>
+</pre>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-bar">Protected Instance methods</h3>
+
+      <div id="method-M000011" class="method-detail">
+        <a name="M000011"></a>
+
+        <div class="method-heading">
+          <a href="#M000011" class="method-signature">
           <span class="method-name">method_missing</span><span class="method-args">(key, *args)</span>
           </a>
         </div>
@@ -220,7 +325,7 @@ shouldn&#8216;t ever need to call this.
         <div class="method-description">
           <p>
 If the :autovivify option is true, then <a
-href="Proxy.html#M000008">method_missing</a> with define accessors on the
+href="Proxy.html#M000011">method_missing</a> with define accessors on the
 fly.
 </p>
 <pre>
@@ -241,18 +346,18 @@ fly.
  user.preferences.public_methods.include?('favorite_color=')  =&gt; true
 </pre>
           <p><a class="source-toggle" href="#"
-            onclick="toggleCode('M000008-source');return false;">[Source]</a></p>
-          <div class="method-source-code" id="M000008-source">
+            onclick="toggleCode('M000011-source');return false;">[Source]</a></p>
+          <div class="method-source-code" id="M000011-source">
 <pre>
-    <span class="ruby-comment cmt"># File lib/proxy.rb, line 92</span>
-92:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">method_missing</span>(<span class="ruby-identifier">key</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
-93:       <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@options</span>.<span class="ruby-identifier">autovivify?</span>
-94:         <span class="ruby-identifier">define_accessor</span>(<span class="ruby-identifier">key</span>)
-95:         <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">send</span>(<span class="ruby-identifier">key</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
-96:       <span class="ruby-keyword kw">else</span>
-97:         <span class="ruby-keyword kw">super</span>
-98:       <span class="ruby-keyword kw">end</span>
-99:     <span class="ruby-keyword kw">end</span>
+     <span class="ruby-comment cmt"># File lib/proxy.rb, line 116</span>
+116:     <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">method_missing</span>(<span class="ruby-identifier">key</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
+117:       <span class="ruby-keyword kw">if</span> <span class="ruby-ivar">@options</span>.<span class="ruby-identifier">autovivify?</span>
+118:         <span class="ruby-identifier">define_accessor</span>(<span class="ruby-identifier">key</span>)
+119:         <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">send</span>(<span class="ruby-identifier">key</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">args</span>)
+120:       <span class="ruby-keyword kw">else</span>
+121:         <span class="ruby-keyword kw">super</span>
+122:       <span class="ruby-keyword kw">end</span>
+123:     <span class="ruby-keyword kw">end</span>
 </pre>
           </div>
         </div>

@@ -137,6 +137,9 @@ There are two ways to specify validation failure when using a method:
   1)  Raise an exception, in which case the exception text will be the validation error message text.
   2)  Add directly to the model's ActiveRecord::Errors object.
 
+Validation error messages are found on the model's errors object:
+  user.errors.on(:preferences) # See documentation for ActiveRecord::Errors
+
 == Casting Preference Values
 Consider the following situation.  You have a boolean preference and you want to make a form to set it.
   form_for @user do |f|
@@ -182,8 +185,12 @@ All values are stored as yaml.  So if you want to join directly to the preferenc
      AND   preferences.value = '#{"savage thunder".to_yaml}'
  SQL;
 
-You can just save a model's preferences and not trigger that model's callbacks.
-  user.preferences.save
+You can just save a model's preferences without saving the model itself.
+  user.preferences.save  # return false if there are validation errors
+  user.preferences.save! # raises PreferencesInvalid exception if there are validation errors
+
+You can validate a model's preferences without validating the model itself.
+  user.preferences.valid? # returns true or false
 
 <tt>preference</tt> is an alias for <tt>preference_definition</tt> if you think the latter is too long to type.
 
