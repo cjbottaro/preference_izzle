@@ -147,7 +147,7 @@ module Preference
           find_value('#{key}')
         end
       end_eval
-      @model.class.class_eval(method_definition) unless @model.class.method_defined?(method_name)
+      self.class.class_eval(method_definition) unless self.class.method_defined?(method_name)
       
       method_name = "#{key}="
       method_definition = <<-end_eval
@@ -155,7 +155,7 @@ module Preference
           set('#{key}', value)
         end
       end_eval
-      @model.class.class_eval(method_definition) unless @model.class.method_defined?(method_name)
+      self.class.class_eval(method_definition) unless self.class.method_defined?(method_name)
       
       Helper.define_accessors(@model.class, key, @options)
       
