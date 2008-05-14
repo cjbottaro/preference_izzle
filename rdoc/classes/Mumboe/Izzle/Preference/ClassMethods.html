@@ -150,9 +150,7 @@ Class, an Array of Classes, a Proc or an Symbol denoting a method on the
 model that has the preferences.
 </p>
 <p>
-<tt>:cast</tt> let&#8216;s you change the <a
-href="ClassMethods.html#M000003">preference</a> value before the validation
-runs.
+<tt>:cast</tt> transforms a preferences value when setting.
 </p>
           <p><a class="source-toggle" href="#"
             onclick="toggleCode('M000002-source');return false;">[Source]</a></p>
@@ -166,23 +164,26 @@ runs.
 56:       <span class="ruby-identifier">options</span> = <span class="ruby-identifier">options</span>.<span class="ruby-identifier">stringify_keys</span>
 57:     
 58:       <span class="ruby-identifier">raise</span> <span class="ruby-constant">ArgumentError</span>, <span class="ruby-node">&quot;preference '#{name}' already defined&quot;</span> <span class="ruby-keyword kw">if</span> <span class="ruby-identifier">preference_definitions</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-identifier">name</span>)
-59:       <span class="ruby-identifier">options</span>.<span class="ruby-identifier">assert_valid_keys</span>(<span class="ruby-operator">*</span><span class="ruby-node">%w[validate default]</span>)
+59:       <span class="ruby-identifier">options</span>.<span class="ruby-identifier">assert_valid_keys</span>(<span class="ruby-operator">*</span><span class="ruby-node">%w[validate default cast typecast]</span>)
 60:     
 61:       <span class="ruby-identifier">preference_definition</span> = <span class="ruby-constant">Definition</span>.<span class="ruby-identifier">new</span>(<span class="ruby-identifier">name</span>)
-62:       <span class="ruby-node">%w[validate default]</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">k</span><span class="ruby-operator">|</span>
-63:         <span class="ruby-identifier">v</span> = <span class="ruby-identifier">options</span>[<span class="ruby-identifier">k</span>]
-64:         <span class="ruby-keyword kw">case</span> <span class="ruby-identifier">k</span>
-65:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'validate'</span>
-66:           <span class="ruby-identifier">preference_definition</span>.<span class="ruby-identifier">set_validation</span>(<span class="ruby-identifier">v</span>)
-67:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'default'</span>
-68:           <span class="ruby-identifier">preference_definition</span>.<span class="ruby-identifier">set_default</span>(<span class="ruby-identifier">v</span>)
-69:         <span class="ruby-keyword kw">end</span>
-70:       <span class="ruby-keyword kw">end</span>
-71:     
-72:       <span class="ruby-constant">Helper</span>.<span class="ruby-identifier">define_accessors</span>(<span class="ruby-keyword kw">self</span>, <span class="ruby-identifier">name</span>, <span class="ruby-identifier">preference_options</span>)
-73:     
-74:       <span class="ruby-identifier">preference_definitions</span>[<span class="ruby-identifier">name</span>] = <span class="ruby-identifier">preference_definition</span>
-75:     <span class="ruby-keyword kw">end</span>
+62:       <span class="ruby-node">%w[validate default cast typecast]</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword kw">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">k</span><span class="ruby-operator">|</span>
+63:         <span class="ruby-keyword kw">next</span> <span class="ruby-keyword kw">unless</span> <span class="ruby-identifier">options</span>.<span class="ruby-identifier">has_key?</span>(<span class="ruby-identifier">k</span>)
+64:         <span class="ruby-identifier">v</span> = <span class="ruby-identifier">options</span>[<span class="ruby-identifier">k</span>]
+65:         <span class="ruby-keyword kw">case</span> <span class="ruby-identifier">k</span>
+66:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'validate'</span>
+67:           <span class="ruby-identifier">preference_definition</span>.<span class="ruby-identifier">set_validation</span>(<span class="ruby-identifier">v</span>)
+68:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'default'</span>
+69:           <span class="ruby-identifier">preference_definition</span>.<span class="ruby-identifier">set_default</span>(<span class="ruby-identifier">v</span>)
+70:         <span class="ruby-keyword kw">when</span> <span class="ruby-value str">'cast'</span>, <span class="ruby-value str">'typecast'</span>
+71:           <span class="ruby-identifier">preference_definition</span>.<span class="ruby-identifier">set_caster</span>(<span class="ruby-identifier">v</span>)
+72:         <span class="ruby-keyword kw">end</span>
+73:       <span class="ruby-keyword kw">end</span>
+74:     
+75:       <span class="ruby-constant">Helper</span>.<span class="ruby-identifier">define_accessors</span>(<span class="ruby-keyword kw">self</span>, <span class="ruby-identifier">name</span>, <span class="ruby-identifier">preference_options</span>)
+76:     
+77:       <span class="ruby-identifier">preference_definitions</span>[<span class="ruby-identifier">name</span>] = <span class="ruby-identifier">preference_definition</span>
+78:     <span class="ruby-keyword kw">end</span>
 </pre>
           </div>
         </div>

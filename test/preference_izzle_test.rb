@@ -12,9 +12,29 @@ class Client < ActiveRecord::Base
   preference_definition :max, :default => 10
   preference_definition :boolean, :default => true
   preference_definition :valid_string, :validate => String
-  preference_definition :valid_fixnum, :validate => Fixnum
   preference_definition :valid_boolean, :validate => [TrueClass, FalseClass]
   preference_definition :valid_number, :validate => Proc.new{ |value| Float(value) }
+  preference_definition :valid_fixnum, :validate => :validate_preference_fixnum
+  preference_definition :casted_boolean_method, :validate => [TrueClass, FalseClass], :cast => :cast_boolean
+  preference_definition :casted_boolean_proc, :validate => [TrueClass, FalseClass], :cast => Proc.new { |value|
+    if [true, 'true'].include?(value)
+      true
+    else
+      false
+    end
+  }
+  
+  def validate_preference_fixnum(value)
+    raise ArgumentError, "#{value} is #{value.class} instead of Fixnum" unless value.instance_of?(Fixnum)
+  end
+  
+  def cast_boolean(value)
+    if [true, 'true'].include?(value)
+      true
+    else
+      false
+    end
+  end
 end
 
 class User < ActiveRecord::Base
@@ -150,6 +170,24 @@ class PreferenceIzzleTest < Test::Unit::TestCase
     assert @client.valid? == false
     assert_equal %q[validation failed for preference 'valid_boolean' - String is not TrueClass or FalseClass], @client.errors.on(:preferences)
     @client.preferred_valid_boolean = true
+    assert @client.valid?
+    
+    @client.preferred_valid_fixnum = 123
+    assert @client.valid?
+    @client.preferred_valid_fixnum = 111111111111111111111111111111111111111111111111111111
+    assert @client.valid? == false
+    assert_equal %q[validation failed for preference 'valid_fixnum' - 111111111111111111111111111111111111111111111111111111 is Bignum instead of Fixnum], @client.errors.on(:preferences)
+    @client.preferred_valid_fixnum = 123
+    assert @client.valid?
+  end
+  
+  def test_casting
+    assert_nil @client.preferences.casted_boolean_method
+    assert_nil @client.preferences.casted_boolean_proc
+    @client.preferences.casted_boolean_method = "true"
+    @client.preferences.casted_boolean_proc = "true"
+    assert_equal true, @client.preferences.casted_boolean_method
+    assert_equal true, @client.preferences.casted_boolean_proc
     assert @client.valid?
   end
   

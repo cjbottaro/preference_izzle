@@ -56,7 +56,7 @@
     </tr>
     <tr class="top-aligned-row">
       <td><strong>Last Update:</strong></td>
-      <td>Wed May 14 13:58:23 -0500 2008</td>
+      <td>Wed May 14 15:25:37 -0500 2008</td>
     </tr>
     </table>
   </div>
@@ -101,12 +101,18 @@ before using them).
 </ul>
 <h2>Quickstart</h2>
 <pre>
+  git clone git://github.com/cjbottaro/preference_izzle.git vendor/plugins/preference_izzle
+
   script/generate preference_migration create_preferences
   rake db:migrate
+  rake db:test:prepare
+  cd vendor/plugins/preference_izzle
+  rake test
 
   class User &lt; ActiveRecord::Base
     preference_options :autovivify =&gt; true
   end
+
   user = User.create
   user.preferences.something = 'blah'
   user.save
@@ -308,6 +314,18 @@ a preference.
 <p>
 Now the code in your action will work the way you want.
 </p>
+<p>
+Note, this option can take either a Proc or a Symbol.
+</p>
+<pre>
+  class User &lt; ActiveRecord::Base
+    preference_definition :mustard, :validate =&gt; [TrueClass, FalseClass],
+                                    :cast =&gt; :cast_boolean
+    def cast_boolean(value)
+       is_boolean?(value) ? value : convert_to_bool(value)
+    end
+  end
+</pre>
 <h2>Tips and Tricks</h2>
 <p>
 All keys are normalized to strings.
@@ -347,7 +365,7 @@ think the latter is too long to type.
 <p>
 The idea for the dynamic <tt>prefers_*</tt> and <tt>preferred_*</tt>
 accessors was taken from Aaron Pfeifer&#8216;s preferences <a
-href="http://agilewebdevelopment.com/plugins/preferences">plugin</a>
+href="http://agilewebdevelopment.com/plugins/preferences">plugin</a>.
 </p>
 <p>
 Copyright (c) 2008 Mumboe Inc, released under the MIT license

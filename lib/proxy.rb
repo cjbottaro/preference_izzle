@@ -54,7 +54,11 @@ module Preference
             errors.add :preferences, "validation failed for preference '#{key}' - #{e}"
           end
         elsif validation.instance_of?(Symbol)
-          # TODO
+          begin
+            @model.send(validation, value)
+          rescue Exception => e
+            errors.add :preferences,"validation failed for preference '#{key}' - #{e}"
+          end
         end
       end
     end
@@ -110,6 +114,7 @@ module Preference
     
     def set(key, value) # :nodoc:
       key = validate_key(key)
+      value = cast(key, value)
       if (preference = find_record(key))
         preference.value = value
       else
@@ -137,6 +142,18 @@ module Preference
       raise ArgumentError, "preference '#{key}' needs to be defined when the :autovivify is false" \
         if @options.autovivify? == false and @definitions.has_key?(key) == false
       key
+    end
+    
+    def cast(key, value) # :nodoc:
+      definition = @definitions[key]
+      return value if definition.blank? or definition.caster.blank?
+      if definition.caster.instance_of?(Symbol)
+        @model.send(definition.caster, value)
+      elsif definition.caster.instance_of?(Proc)
+        definition.caster.call(value)
+      else
+        raise ArgumentError, "preference :cast option for preference '#{key}' must be a Symbol or a Proc"
+      end
     end
     
     def define_accessor(key) # :nodoc:

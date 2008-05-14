@@ -13,12 +13,18 @@ Key features that make this plugin different from other preference/options/confi
 
 ==Quickstart
 
+  git clone git://github.com/cjbottaro/preference_izzle.git vendor/plugins/preference_izzle
+
   script/generate preference_migration create_preferences
   rake db:migrate
+  rake db:test:prepare
+  cd vendor/plugins/preference_izzle
+  rake test
   
   class User < ActiveRecord::Base
     preference_options :autovivify => true
   end
+  
   user = User.create
   user.preferences.something = 'blah'
   user.save
@@ -152,6 +158,15 @@ There is a solution to this, the :cast (or :typecast) option when defining a pre
 
 Now the code in your action will work the way you want.
 
+Note, this option can take either a Proc or a Symbol.
+  class User < ActiveRecord::Base
+    preference_definition :mustard, :validate => [TrueClass, FalseClass],
+                                    :cast => :cast_boolean
+    def cast_boolean(value)
+       is_boolean?(value) ? value : convert_to_bool(value)
+    end
+  end
+
 ==Tips and Tricks
 
 All keys are normalized to strings.
@@ -174,7 +189,7 @@ You can just save a model's preferences and not trigger that model's callbacks.
 
 ==Credits
   Christopher J. Bottaro <cjbottaro@alumni.cs.utexas.edu>, <cbottaro@mumboe.com>
-The idea for the dynamic <tt>prefers_*</tt> and <tt>preferred_*</tt> accessors was taken from Aaron Pfeifer's preferences plugin[http://agilewebdevelopment.com/plugins/preferences]
+The idea for the dynamic <tt>prefers_*</tt> and <tt>preferred_*</tt> accessors was taken from Aaron Pfeifer's preferences plugin[http://agilewebdevelopment.com/plugins/preferences].
   
 
 Copyright (c) 2008 Mumboe Inc, released under the MIT license

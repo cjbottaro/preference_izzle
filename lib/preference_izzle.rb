@@ -48,7 +48,7 @@ module Preference # :nodoc:
     #
     # <tt>:validate</tt> specifies a means to ensure that a preference value is valid.  It can be a Class, an Array of Classes, a Proc or an Symbol denoting a method on the model that has the preferences.
     #
-    # <tt>:cast</tt> let's you change the preference value before the validation runs.
+    # <tt>:cast</tt> transforms a preferences value when setting.
     def preference_definition(name, options = {})
       Helper.init(self)
     
@@ -56,16 +56,19 @@ module Preference # :nodoc:
       options = options.stringify_keys
     
       raise ArgumentError, "preference '#{name}' already defined" if preference_definitions.has_key?(name)
-      options.assert_valid_keys(*%w[validate default])
+      options.assert_valid_keys(*%w[validate default cast typecast])
     
       preference_definition = Definition.new(name)
-      %w[validate default].each do |k|
+      %w[validate default cast typecast].each do |k|
+        next unless options.has_key?(k)
         v = options[k]
         case k
         when 'validate'
           preference_definition.set_validation(v)
         when 'default'
           preference_definition.set_default(v)
+        when 'cast', 'typecast'
+          preference_definition.set_caster(v)
         end
       end
     

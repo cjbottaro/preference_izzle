@@ -3,7 +3,7 @@ module Izzle
 module Preference
   
   class Definition # :nodoc:
-    attr_accessor :name, :validation, :default
+    attr_accessor :name, :validation, :default, :caster
     
     def initialize(name)
       # TODO validation on name
@@ -25,6 +25,11 @@ module Preference
     
     def set_default(value)
       @default = value
+    end
+    
+    def set_caster(value)
+      raise ArgumentError, ":cast or :typecast preference option must be a Symbol or a Proc" unless [Symbol, Proc].include?(value.class)
+      @caster = value
     end
     
   end
