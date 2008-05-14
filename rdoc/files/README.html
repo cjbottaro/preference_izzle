@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>File: README</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href=".././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+  <div id="fileHeader">
+    <h1>README</h1>
+    <table class="header-table">
+    <tr class="top-aligned-row">
+      <td><strong>Path:</strong></td>
+      <td>README
+      </td>
+    </tr>
+    <tr class="top-aligned-row">
+      <td><strong>Last Update:</strong></td>
+      <td>Wed May 14 13:58:23 -0500 2008</td>
+    </tr>
+    </table>
+  </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <h1>PreferenceIzzle</h1>
+<p>
+Add preferences to any model.
+</p>
+<p>
+Key features that make this plugin different from other
+preference/options/configuration plugins:
+</p>
+<ul>
+<li>Complex values (a preference can be a Hash, an Array, or any kind of
+yamlizable object).
+
+</li>
+<li>Complex validation on preference values.
+
+</li>
+<li>Option to &quot;inherit&quot; default values from associations.
+
+</li>
+<li>Autovivification option (so you don&#8216;t have to define your preference
+before using them).
+
+</li>
+<li>Robust approach to cleaning up preference values before validation happens.
+
+</li>
+<li>Generator to create migration that creates the preferences table.
+
+</li>
+</ul>
+<h2>Quickstart</h2>
+<pre>
+  script/generate preference_migration create_preferences
+  rake db:migrate
+
+  class User &lt; ActiveRecord::Base
+    preference_options :autovivify =&gt; true
+  end
+  user = User.create
+  user.preferences.something = 'blah'
+  user.save
+</pre>
+<h2>Accessing Preferences</h2>
+<p>
+There are 4 ways to read preferences.
+</p>
+<pre>
+  user.preferences[:something]
+  user.preferences.something
+  user.prefers_something?  # synonymous to !!user.preferneces[:something]
+  user.preferred_something
+</pre>
+<p>
+There are 4 ways to write preferences.
+</p>
+<pre>
+  user.preferences[:something]  = 'blah'
+  user.preferences.something    = 'blah'
+  user.prefers_something        = 'blah'
+  user.preferred_something      = 'blah'
+  # Don't forget to call user.save to propagate the changes to the database.
+</pre>
+<p>
+Any Yamlizable object can be set as a preference value.
+</p>
+<pre>
+  user.preferences.something =  {:one =&gt; &quot;one&quot;, :two =&gt; &quot;two&quot; }
+  user.preferences.something == {:one =&gt; &quot;one&quot;, :two =&gt; &quot;two&quot; } # =&gt; true
+</pre>
+<h2>Preference Options</h2>
+<p>
+:autovivify specifies whether or not you need to define your preferences
+explicitly. It defaults to false.
+</p>
+<pre>
+  class User &lt; ActiveRecord::Base
+    preference_options :autovivify =&gt; false # this is the default
+    preference_definition :something
+  end
+  user.preferences.something
+  user.preferences.otherthing # exception, preference 'otherthing' not defined.
+</pre>
+<p>
+:alias (or :shorthand) saves you some typing.
+</p>
+<pre>
+  class User &lt; ActiveRecord::Base
+    preference_options :autovivify =&gt; true,
+                       :alias =&gt; 'prefs'
+  end
+  user.preferences.something
+  user.prefs.something # is the same as above
+</pre>
+<h2>Defining Preferences</h2>
+<p>
+If the :autovivify option is false (which it defaults to), you need to
+explicitly define your preferences. You can still define preferences with
+the :autovivify option on, which is useful if you want specific behavior
+for certain preferences.
+</p>
+<h3>Simple Definition</h3>
+<pre>
+  class User &lt; ActiveRecord::Base
+    preference_definition :something
+  end
+  user.preferences.something              # =&gt; nil
+  user.preferences.something = &quot;blah&quot;     # =&gt; &quot;blah&quot;
+  user.preferences.something              # =&gt; &quot;blah&quot;
+</pre>
+<h3>Default Values</h3>
+<p>
+If you try to read a preference that doesn&#8216;t exist, it&#8216;s
+default value will be returned, or nil if no default value exists.
+</p>
+<pre>
+  class User &lt; ActiveRecord::Base
+    preference_definition :something
+    preference_definition :otherthing, :default =&gt; &quot;hello world&quot;
+  end
+  user.preferences.something                      # =&gt; nil
+  user.preferences.otherthing                     # =&gt; &quot;hello world&quot;
+  user.preferences.otherthing = &quot;bye bye world&quot;   # =&gt; &quot;bye bye world&quot;
+  user.preferences.otherthing                     # =&gt; &quot;bye bye world&quot;
+</pre>
+<p>
+Default values can be inherited from associations.
+</p>
+<pre>
+  class Client &lt; ActiveRecord::Base
+    preference_definition :something, :default =&gt; &quot;client's default&quot;
+  end
+  class User &lt; ActiveRecord::Base
+    preference_definition :something, :default =&gt; :client
+    belongs_to :client
+  end
+  user.preferences.something    # =&gt; &quot;client's default&quot;
+</pre>
+<h3>Validation</h3>
+<p>
+Validation can be performed on preference values.
+</p>
+<p>
+You can specify that a preference needs to be an instance of a certain
+class.
+</p>
+<pre>
+  class User &lt; ActiveRecord::Base
+    preference_definition :something, :validate =&gt; String
+  end
+  user.preferences.something = &quot;test&quot;   # =&gt; &quot;test&quot;
+  user.valid?                           # =&gt; true
+  user.preferences.something = 123      # =&gt; 123
+  user.valid?                           # =&gt; false
+  user.errors.on(:preferences)          # contains message about preference 'something' needing to be a String instead of Fixnum
+</pre>
+<p>
+You can specify an array of classes for validation.
+</p>
+<pre>
+  class User &lt; ActiveRecord::Base
+    preference_definition :remember_me, :validate =&gt; [TrueClass, FalseClass]
+  end
+</pre>
+<p>
+You can specify a Proc to do validation.
+</p>
+<pre>
+  class User &lt; ActiveRecord::Base
+    preference_definition :something, :validate =&gt; Proc.new{ |value| raise ArgumentError, &quot;validation failure text&quot; if fails_some_condition(value) }
+  end
+</pre>
+<p>
+There are two ways to specify validation failure when using a Proc:
+</p>
+<pre>
+  1)  Raise an exception, in which case the exception text will be the validation error message text.
+  2)  Add directly to the model's ActiveRecord::Errors object.
+</pre>
+<p>
+You can specify a method to do validation.
+</p>
+<pre>
+  class User &lt; ActiveRecord::Base
+    preference_definition :something, :validate =&gt; :validate_something_preference
+    def validate_something_preference(value)
+      self.errors.add(:preferences, &quot;validation failure text&quot;) if fails_some_condition(value)
+    end
+  end
+</pre>
+<p>
+There are two ways to specify validation failure when using a method:
+</p>
+<pre>
+  1)  Raise an exception, in which case the exception text will be the validation error message text.
+  2)  Add directly to the model's ActiveRecord::Errors object.
+</pre>
+<h2>Casting Preference Values</h2>
+<p>
+Consider the following situation. You have a boolean preference and you
+want to make a form to set it.
+</p>
+<pre>
+  form_for @user do |f|
+    f.check_box &quot;user&quot;, &quot;prefers_mustard&quot;, {}, &quot;true&quot;, &quot;false&quot;
+  end
+</pre>
+<p>
+Now you want to do something like this in your action.
+</p>
+<pre>
+  user.update_attributes params[:user]
+</pre>
+<p>
+But now you get a validation error because you defined your preference like
+this.
+</p>
+<pre>
+  class User &lt; ActiveRecord::Base
+    preference_definition :mustard, :validate =&gt; [TrueClass, FalseClass]
+  end
+</pre>
+<p>
+Because <tt>user.update_attributes</tt> boils down to something like
+<tt>user.prefers_mustard = &#8216;true&#8216;</tt> and you get a validation
+error about String not being TrueClass or FalseClass.
+</p>
+<p>
+There is a solution to this, the :cast (or :typecast) option when defining
+a preference.
+</p>
+<pre>
+  class User &lt; ActiveRecord::Base
+    preference_definition :mustard, :validate =&gt; [TrueClass, FalseClass],
+                                    :cast =&gt; Proc.new{ |value| is_boolean?(value) ? value : convert_to_bool(value) }
+  end
+</pre>
+<p>
+Now the code in your action will work the way you want.
+</p>
+<h2>Tips and Tricks</h2>
+<p>
+All keys are normalized to strings.
+</p>
+<pre>
+ user.preferences[:ui_theme] # :ui_theme gets stored in the db as 'ui_theme'
+</pre>
+<p>
+All values are stored as yaml. So if you want to join directly to the
+preferences table, you have to do something like this:
+</p>
+<pre>
+ User.find_by_sql &lt;&lt;-SQL
+   SELECT  users.*
+   FROM    users
+   JOIN    preferences ON preferences.model_id = users.id
+   WHERE   preferences.model_type = '#{user.class.name}'
+     AND   preferences.key = 'ui_theme'
+     AND   preferences.value = '#{&quot;savage thunder&quot;.to_yaml}'
+ SQL;
+</pre>
+<p>
+You can just save a model&#8216;s preferences and not trigger that
+model&#8216;s callbacks.
+</p>
+<pre>
+  user.preferences.save
+</pre>
+<p>
+<tt>preference</tt> is an alias for <tt>preference_definition</tt> if you
+think the latter is too long to type.
+</p>
+<h2>Credits</h2>
+<pre>
+  Christopher J. Bottaro &lt;cjbottaro@alumni.cs.utexas.edu&gt;, &lt;cbottaro@mumboe.com&gt;
+</pre>
+<p>
+The idea for the dynamic <tt>prefers_*</tt> and <tt>preferred_*</tt>
+accessors was taken from Aaron Pfeifer&#8216;s preferences <a
+href="http://agilewebdevelopment.com/plugins/preferences">plugin</a>
+</p>
+<p>
+Copyright (c) 2008 Mumboe Inc, released under the MIT license
+</p>
+
+    </div>
+
+
+   </div>
+
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>
