@@ -187,6 +187,10 @@ You can just save a model's preferences and not trigger that model's callbacks.
 
 <tt>preference</tt> is an alias for <tt>preference_definition</tt> if you think the latter is too long to type.
 
+==TODO
+* Validation on default values.
+* Preferences on other objects.  <tt>user.preferences.color :for => user.car</tt>
+
 ==Credits
   Christopher J. Bottaro <cjbottaro@alumni.cs.utexas.edu>, <cbottaro@mumboe.com>
 The idea for the dynamic <tt>prefers_*</tt> and <tt>preferred_*</tt> accessors was taken from Aaron Pfeifer's preferences plugin[http://agilewebdevelopment.com/plugins/preferences].
