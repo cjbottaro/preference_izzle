@@ -1,0 +1,206 @@
+=PreferenceIzzle
+
+Add preferences to any model.
+
+Key features that make this plugin different from other preference/options/configuration plugins:
+* Complex values (a preference can be a Hash, an Array, or any kind of yamlizable object).
+* Complex validation on preference values.
+* Option to "inherit" default values from associations.
+* Autovivification option (so you don't have to define your preference before using them).
+* Robust approach to cleaning up preference values before validation happens.
+* Generator to create migration that creates the preferences table.
+
+
+==Quickstart
+
+  git clone git://github.com/cjbottaro/preference_izzle.git vendor/plugins/preference_izzle
+
+  script/generate preference_migration create_preferences
+  rake db:migrate
+  rake db:test:prepare
+  cd vendor/plugins/preference_izzle
+  rake test
+  
+  class User < ActiveRecord::Base
+    preference_options :autovivify => true
+  end
+  
+  user = User.create
+  user.preferences.something = 'blah'
+  user.save
+
+
+==Accessing Preferences
+
+There are 4 ways to read preferences.
+  user.preferences[:something]
+  user.preferences.something
+  user.prefers_something?  # synonymous to !!user.preferneces[:something]
+  user.preferred_something
+
+There are 4 ways to write preferences.
+  user.preferences[:something]  = 'blah'
+  user.preferences.something    = 'blah'
+  user.prefers_something        = 'blah'
+  user.preferred_something      = 'blah'
+  # Don't forget to call user.save to propagate the changes to the database.
+
+Any Yamlizable object can be set as a preference value.
+  user.preferences.something =  {:one => "one", :two => "two" }
+  user.preferences.something == {:one => "one", :two => "two" } # => true
+
+==Preference Options
+
+:autovivify specifies whether or not you need to define your preferences explicitly.  It defaults to false.
+  class User < ActiveRecord::Base
+    preference_options :autovivify => false # this is the default
+    preference_definition :something
+  end
+  user.preferences.something
+  user.preferences.otherthing # exception, preference 'otherthing' not defined.
+
+:alias (or :shorthand) saves you some typing.
+  class User < ActiveRecord::Base
+    preference_options :autovivify => true,
+                       :alias => 'prefs'
+  end
+  user.preferences.something
+  user.prefs.something # is the same as above
+
+==Defining Preferences
+
+If the :autovivify option is false (which it defaults to), you need to explicitly define your preferences.  You can still define preferences with the :autovivify option on, which is useful if you want specific behavior for certain preferences.
+
+===Simple Definition
+  class User < ActiveRecord::Base
+    preference_definition :something
+  end
+  user.preferences.something              # => nil
+  user.preferences.something = "blah"     # => "blah"
+  user.preferences.something              # => "blah"
+
+===Default Values
+If you try to read a preference that doesn't exist, it's default value will be returned, or nil if no default value exists.
+  class User < ActiveRecord::Base
+    preference_definition :something
+    preference_definition :otherthing, :default => "hello world"
+  end
+  user.preferences.something                      # => nil
+  user.preferences.otherthing                     # => "hello world"
+  user.preferences.otherthing = "bye bye world"   # => "bye bye world"
+  user.preferences.otherthing                     # => "bye bye world"
+
+Default values can be inherited from associations.
+  class Client < ActiveRecord::Base
+    preference_definition :something, :default => "client's default"
+  end
+  class User < ActiveRecord::Base
+    preference_definition :something, :default => :client
+    belongs_to :client
+  end
+  user.preferences.something    # => "client's default"
+
+===Validation
+Validation can be performed on preference values.
+
+You can specify that a preference needs to be an instance of a certain class.
+  class User < ActiveRecord::Base
+    preference_definition :something, :validate => String
+  end
+  user.preferences.something = "test"   # => "test"
+  user.valid?                           # => true
+  user.preferences.something = 123      # => 123
+  user.valid?                           # => false
+  user.errors.on(:preferences)          # contains message about preference 'something' needing to be a String instead of Fixnum
+  
+You can specify an array of classes for validation.
+  class User < ActiveRecord::Base
+    preference_definition :remember_me, :validate => [TrueClass, FalseClass]
+  end
+
+You can specify a Proc to do validation.
+  class User < ActiveRecord::Base
+    preference_definition :something, :validate => Proc.new{ |value| raise ArgumentError, "validation failure text" if fails_some_condition(value) }
+  end
+There are two ways to specify validation failure when using a Proc:
+  1)  Raise an exception, in which case the exception text will be the validation error message text.
+  2)  Add directly to the model's ActiveRecord::Errors object.
+
+You can specify a method to do validation.
+  class User < ActiveRecord::Base
+    preference_definition :something, :validate => :validate_something_preference
+    def validate_something_preference(value)
+      self.errors.add(:preferences, "validation failure text") if fails_some_condition(value)
+    end
+  end
+There are two ways to specify validation failure when using a method:
+  1)  Raise an exception, in which case the exception text will be the validation error message text.
+  2)  Add directly to the model's ActiveRecord::Errors object.
+
+Validation error messages are found on the model's errors object:
+  user.errors.on(:preferences) # See documentation for ActiveRecord::Errors
+
+== Casting Preference Values
+Consider the following situation.  You have a boolean preference and you want to make a form to set it.
+  form_for @user do |f|
+    f.check_box "user", "prefers_mustard", {}, "true", "false"
+  end
+Now you want to do something like this in your action.
+  user.update_attributes params[:user]
+But now you get a validation error because you defined your preference like this.
+  class User < ActiveRecord::Base
+    preference_definition :mustard, :validate => [TrueClass, FalseClass]
+  end
+Because <tt>user.update_attributes</tt> boils down to something like <tt>user.prefers_mustard = 'true'</tt> and you get a validation error about String not being TrueClass or FalseClass.
+
+There is a solution to this, the :cast (or :typecast) option when defining a preference.
+  class User < ActiveRecord::Base
+    preference_definition :mustard, :validate => [TrueClass, FalseClass],
+                                    :cast => Proc.new{ |value| is_boolean?(value) ? value : convert_to_bool(value) }
+  end
+
+Now the code in your action will work the way you want.
+
+Note, this option can take either a Proc or a Symbol.
+  class User < ActiveRecord::Base
+    preference_definition :mustard, :validate => [TrueClass, FalseClass],
+                                    :cast => :cast_boolean
+    def cast_boolean(value)
+       is_boolean?(value) ? value : convert_to_bool(value)
+    end
+  end
+
+==Tips and Tricks
+
+All keys are normalized to strings.
+ user.preferences[:ui_theme] # :ui_theme gets stored in the db as 'ui_theme'
+
+All values are stored as yaml.  So if you want to join directly to the preferences table, you have to do something like this:
+ User.find_by_sql <<-SQL
+   SELECT  users.*
+   FROM    users
+   JOIN    preferences ON preferences.model_id = users.id
+   WHERE   preferences.model_type = '#{user.class.name}'
+     AND   preferences.key = 'ui_theme'
+     AND   preferences.value = '#{"savage thunder".to_yaml}'
+ SQL;
+
+You can just save a model's preferences without saving the model itself.
+  user.preferences.save  # return false if there are validation errors
+  user.preferences.save! # raises PreferencesInvalid exception if there are validation errors
+
+You can validate a model's preferences without validating the model itself.
+  user.preferences.valid? # returns true or false
+
+<tt>preference</tt> is an alias for <tt>preference_definition</tt> if you think the latter is too long to type.
+
+==TODO
+* Validation on default values.
+* Preferences on other objects.  <tt>user.preferences.color :for => user.car</tt>
+
+==Credits
+  Christopher J. Bottaro <cjbottaro@alumni.cs.utexas.edu>, <cbottaro@mumboe.com>
+The idea for the dynamic <tt>prefers_*</tt> and <tt>preferred_*</tt> accessors was taken from Aaron Pfeifer's preferences plugin[http://agilewebdevelopment.com/plugins/preferences].
+  
+
+Copyright (c) 2008 Mumboe Inc, released under the MIT license
