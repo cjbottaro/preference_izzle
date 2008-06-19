@@ -1,3 +1,7 @@
+=UPDATE
+
+Use has_easy instead.  It can do everything PreferenceIzzle can do and more.  It is also more cleanly designed.  Development is stopped on PreferenceIzzle.
+
 =PreferenceIzzle
 
 Add preferences to any model.
